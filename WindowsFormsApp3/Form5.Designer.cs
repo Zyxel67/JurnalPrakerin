@@ -180,6 +180,7 @@
             this.Name = "Form5";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Dashboard Siswa";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.pnltop.ResumeLayout(false);
             this.pnltop.PerformLayout();
             this.pnlSidebar.ResumeLayout(false);

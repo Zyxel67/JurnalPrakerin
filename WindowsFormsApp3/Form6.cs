@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.IO; // Wajib ditambahkan untuk memproses file gambar ke byte[]
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,27 +16,65 @@ namespace WindowsFormsApp3
     {
         private byte[] fotoBytes = null;
         private string idLaporanEdit = "";
+
         public Form6()
         {
             InitializeComponent();
-            tampildata();
+
+            // INI KUNCI UTAMANYA: Paksa hubungkan event CellClick secara manual!
+            this.dataGridView1.CellClick -= new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
+            this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
+
+            btnUpdate.Visible = false;
+            btnSimpanJurnal.Visible = true;
         }
 
-        // 1. Event Handler Tombol Upload Foto (Diperbaiki)
+        // --- 1. Fungsi Bersihkan Form ---
+        private void bersih()
+        {
+            txtDeskripsi.Text = "";
+            txtKegiatan.Text = "";
+            if (picFoto.Image != null) picFoto.Image = null;
+            fotoBytes = null;
+            idLaporanEdit = "";
+            dtpTanggal.Value = DateTime.Now;
+
+            // Mengatur visibilitas tombol
+            btnSimpanJurnal.Visible = true;
+            btnUpdate.Visible = false;
+        }
+
+        // --- 2. Saat Form Pertama Kali Dibuka ---
+        private void Form6_Load(object sender, EventArgs e)
+        {
+            tampildata();
+            bersih();
+        }
+
+        // --- 3. Event Tombol Upload Foto ---
         private void btnUploadFoto_Click_1(object sender, EventArgs e)
         {
+            ProsesPilihFoto();
+        }
+
+        private void btnPilihFoto_Click(object sender, EventArgs e)
+        {
+            ProsesPilihFoto();
+        }
+
+        private void ProsesPilihFoto()
+        {
             OpenFileDialog open = new OpenFileDialog();
-            open.Filter = "File Gambar (*.jpg; *.jpeg; *.png)|*.jpg; *.jpeg; *.png";
+            open.Filter = "Format Gambar (*.jpg; *.jpeg; *.png)|*.jpg; *.jpeg; *.png";
 
             if (open.ShowDialog() == DialogResult.OK)
             {
-                // Tampilkan preview foto di PictureBox (Pastikan nama PictureBox adalah picFoto)
                 picFoto.Image = Image.FromFile(open.FileName);
                 fotoBytes = File.ReadAllBytes(open.FileName);
             }
         }
 
-        // 2. Event Handler Tombol Simpan Jurnal
+        // --- 4. Event Tombol Simpan Jurnal Baru ---
         private void btnSimpanJurnal_Click_1(object sender, EventArgs e)
         {
             if (txtKegiatan.Text.Trim() == "" || txtDeskripsi.Text.Trim() == "")
@@ -55,10 +93,7 @@ namespace WindowsFormsApp3
                     return;
                 }
 
-                if (Classdb.koneksi.State == ConnectionState.Closed)
-                {
-                    Classdb.koneksi.Open();
-                }
+                if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
 
                 string queryInput = "INSERT INTO jurnal_siswa (Ids, tanggal, kegiatan, deskripsi, gambar, status) VALUES (@Ids, @Tanggal, @Kegiatan, @Deskripsi, @Gambar, 'Menunggu')";
 
@@ -70,26 +105,16 @@ namespace WindowsFormsApp3
                     cmd.Parameters.AddWithValue("@Deskripsi", txtDeskripsi.Text);
 
                     if (fotoBytes != null)
-                    {
                         cmd.Parameters.AddWithValue("@Gambar", fotoBytes);
-                    }
                     else
-                    {
                         cmd.Parameters.AddWithValue("@Gambar", DBNull.Value);
-                    }
 
                     cmd.ExecuteNonQuery();
                 }
 
                 MessageBox.Show("Mantap! Jurnal berhasil dikirim dan sedang menunggu persetujuan.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                // Reset form
-                txtKegiatan.Clear();
-                txtDeskripsi.Clear();
-                if (picFoto.Image != null) picFoto.Image = null;
-                fotoBytes = null;
-                dtpTanggal.Value = DateTime.Now;
-
+                bersih();
                 tampildata();
             }
             catch (Exception ex)
@@ -98,24 +123,19 @@ namespace WindowsFormsApp3
             }
             finally
             {
-                if (Classdb.koneksi.State == ConnectionState.Open)
-                {
-                    Classdb.koneksi.Close();
-                }
+                if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
             }
         }
 
-        // 3. Menampilkan Data (Termasuk kolom Catatan)
+        public string sus;
+        // --- 5. Fungsi Tampil Data ke Tabel ---
         private void tampildata()
         {
             dataGridView1.Rows.Clear();
 
             try
             {
-                if (Classdb.koneksi.State == ConnectionState.Closed)
-                {
-                    Classdb.koneksi.Open();
-                }
+                if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
 
                 string idSiswa = Classdb.idUserLogin;
                 string queryTampil = "SELECT id_laporan, tanggal, kegiatan, deskripsi, status, catatan FROM jurnal_siswa WHERE Ids = @Ids ORDER BY tanggal DESC";
@@ -128,15 +148,18 @@ namespace WindowsFormsApp3
                     {
                         while (reader.Read())
                         {
-                            string idLaporan = reader["id_laporan"].ToString(); // Tarik id_laporannya
-                            DateTime tgl = Convert.ToDateTime(reader["tanggal"]);
-                            string tanggalTampil = tgl.ToString("dd MMM yyyy");
-                            string kegiatan = reader["kegiatan"].ToString();
-                            string deskripsi = reader["deskripsi"].ToString();
-                            string status = reader["status"].ToString();
-                            string catatan = reader["catatan"].ToString();
+                            int baris = dataGridView1.Rows.Add();
 
-                            dataGridView1.Rows.Add(idLaporan, tanggalTampil, kegiatan, deskripsi, status, catatan);
+                            // Penempatan sel presisi sesuai urutan kolom
+                            dataGridView1.Rows[baris].Cells[0].Value = reader["id_laporan"].ToString();
+
+                            DateTime tgl = Convert.ToDateTime(reader["tanggal"]);
+                            dataGridView1.Rows[baris].Cells[1].Value = tgl.ToString("dd MMM yyyy");
+
+                            dataGridView1.Rows[baris].Cells[2].Value = reader["kegiatan"].ToString();
+                            dataGridView1.Rows[baris].Cells[3].Value = reader["deskripsi"].ToString();
+                            dataGridView1.Rows[baris].Cells[4].Value = reader["status"].ToString();
+                            dataGridView1.Rows[baris].Cells[5].Value = reader["catatan"].ToString();
                         }
                     }
                 }
@@ -147,56 +170,99 @@ namespace WindowsFormsApp3
             }
             finally
             {
-                if (Classdb.koneksi.State == ConnectionState.Open)
-                {
-                    Classdb.koneksi.Close();
-                }
+                if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
             }
         }
 
-        private void Form6_Load(object sender, EventArgs e)
-        {
-            // Bisa diisi nanti kalau ada yang mau dimuat saat form pertama kali dibuka
-        }
-
-        // 4. Diperbaiki: Mencegah error hapus siswa. 
-        // Sekarang kalau di-klik, data riwayat jurnalnya masuk ke TextBox biar gampang dibaca ulang.
+        // --- 6. Event Klik Tabel MENGGUNAKAN CELLCLICK (SESUAI REQUEST) ---
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            int indeksbaris = e.RowIndex;
-            if (indeksbaris < 0) return;
+            int baris = e.RowIndex;
+            int kolom = e.ColumnIndex;
 
-            // Menarik data dari baris tabel yang diklik (asumsi susunan: Tanggal, Kegiatan, Deskripsi, Status, Catatan)
-            string idLaporanTerpilih = dataGridView1.Rows[indeksbaris].Cells[0].Value?.ToString();
-            string kegiatan = dataGridView1.Rows[indeksbaris].Cells[1].Value?.ToString();
-            string deskripsi = dataGridView1.Rows[indeksbaris].Cells[2].Value?.ToString();
-            string catatanGuru = dataGridView1.Rows[indeksbaris].Cells[4].Value?.ToString();
+            // Abaikan kalau yang diklik adalah header atas atau area kosong
+            if (baris < 0 || kolom < 0) return;
 
-            idLaporanEdit = dataGridView1.Rows[indeksbaris].Cells[0].Value.ToString();
-            string status = dataGridView1.Rows[indeksbaris].Cells[4].Value.ToString();
+            string idp = dataGridView1.Rows[baris].Cells[0].Value?.ToString();
+            string status = dataGridView1.Rows[baris].Cells[4].Value?.ToString();
 
-            if (status != "Menunggu")
+            // Pakai Trim() buat jaga-jaga kalau nama kolom di Designer lu ada kelebihan spasi ("Edit " / "Delete ")
+            string namaHeader = dataGridView1.Columns[kolom].HeaderText.Trim();
+
+            // --- A. KLIK TOMBOL EDIT ---
+            if (namaHeader == "Edit")
             {
-                MessageBox.Show("Jurnal yang sudah diperiksa tidak bisa diubah lagi!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
+                if (status != "Menunggu")
+                {
+                    MessageBox.Show("Jurnal sudah diperiksa, tidak bisa diedit!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                idLaporanEdit = idp;
+                txtKegiatan.Text = dataGridView1.Rows[baris].Cells[2].Value?.ToString();
+                txtDeskripsi.Text = dataGridView1.Rows[baris].Cells[3].Value?.ToString();
+
+                btnSimpanJurnal.Visible = false;
+                btnUpdate.Visible = true;
             }
 
-            FormDetailJurnal formDetail = new FormDetailJurnal(idLaporanTerpilih);
-            formDetail.ShowDialog();        
-            // Opsional: Tampilkan ke textbox jika kamu mau siswa bisa mereview ulang tulisan dan catatan gurunya
-            txtKegiatan.Text = kegiatan;
-            txtDeskripsi.Text = deskripsi;
+            // --- B. KLIK TOMBOL DELETE / HAPUS ---
+            else if (namaHeader == "Delete" || namaHeader == "Hapus")
+            {
+                if (status != "Menunggu")
+                {
+                    MessageBox.Show("Jurnal yang sudah diperiksa tidak boleh dihapus!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-            btnSimpanJurnal.Visible = false; // Sembunyikan tombol Simpan
-            btnUpdate.Visible = true;        // Munculkan tombol Update
+                DialogResult setuju = MessageBox.Show("Yakin mau menghapus jurnal harian ini?", "Konfirmasi Hapus", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (setuju == DialogResult.Yes)
+                {
+                    try
+                    {
+                        if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+
+                        using (MySqlCommand cmd = new MySqlCommand("DELETE FROM jurnal_siswa WHERE id_laporan = @id", Classdb.koneksi))
+                        {
+                            cmd.Parameters.AddWithValue("@id", idp);
+                            cmd.ExecuteNonQuery();
+                        }
+                        MessageBox.Show("Jurnal berhasil dihapus!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        tampildata();
+                        bersih();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Gagal menghapus: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
+                    }
+                }
+            }
+            //ttt
+            // --- C. KLIK KOLOM LAINNYA (Buka Pop-up) ---
+            else
+            {
+                // Kalau yang diklik bukan Edit dan bukan Delete (misal klik Catatan, Judul, Tanggal), 
+                // langsung panggil Form Pop-up yang nampilin foto & pesan evaluasi dari guru.
+                FormDetailJurnal detailPopup = new FormDetailJurnal(idp);
+                detailPopup.ShowDialog();
+            }
         }
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        // --- 7. Event Tombol Update Jurnal ---
+
+        private void Form6_Load_1(object sender, EventArgs e)
         {
-
+            tampildata();
+            bersih();
+            //1pp
         }
 
-        private void btnUpdate_Click(object sender, EventArgs e)
+        private void btnUpdate_Click_1(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(idLaporanEdit))
             {
@@ -206,19 +272,16 @@ namespace WindowsFormsApp3
 
             try
             {
-                if (Classdb.koneksi.State == ConnectionState.Closed)
-                    Classdb.koneksi.Open();
+                if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
 
                 string queryUpdate = "";
 
-                // Jika user memilih foto baru, update gambarnya juga
                 if (fotoBytes != null)
                 {
                     queryUpdate = "UPDATE jurnal_siswa SET kegiatan = @Kegiatan, deskripsi = @Deskripsi, gambar = @Gambar WHERE id_laporan = @IdLaporan";
                 }
                 else
                 {
-                    // Jika tidak ada foto baru, JANGAN update kolom gambar agar foto lama tidak hilang
                     queryUpdate = "UPDATE jurnal_siswa SET kegiatan = @Kegiatan, deskripsi = @Deskripsi WHERE id_laporan = @IdLaporan";
                 }
 
@@ -228,28 +291,15 @@ namespace WindowsFormsApp3
                     cmd.Parameters.AddWithValue("@Kegiatan", txtKegiatan.Text);
                     cmd.Parameters.AddWithValue("@Deskripsi", txtDeskripsi.Text);
 
-                    if (fotoBytes != null)
-                    {
-                        cmd.Parameters.AddWithValue("@Gambar", fotoBytes);
-                    }
+                    if (fotoBytes != null) cmd.Parameters.AddWithValue("@Gambar", fotoBytes);
 
                     cmd.ExecuteNonQuery();
                 }
 
                 MessageBox.Show("Data jurnal berhasil diupdate!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                // Reset form kembali ke mode "Input Baru"
-                txtKegiatan.Clear();
-                txtDeskripsi.Clear();
-                if (picFoto.Image != null) picFoto.Image = null;
-                fotoBytes = null;
-                idLaporanEdit = "";
-
-                // Kembalikan tombol ke kondisi semula
-                btnSimpanJurnal.Visible = true;
-                btnUpdate.Visible = false;
-
-                tampildata(); // Refresh tabel
+                bersih();
+                tampildata();
             }
             catch (Exception ex)
             {
@@ -257,8 +307,7 @@ namespace WindowsFormsApp3
             }
             finally
             {
-                if (Classdb.koneksi.State == ConnectionState.Open)
-                    Classdb.koneksi.Close();
+                if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
             }
         }
     }

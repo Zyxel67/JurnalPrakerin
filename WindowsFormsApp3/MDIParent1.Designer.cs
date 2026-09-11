@@ -94,6 +94,7 @@
             this.btnKeluar.Text = "Keluar (Logout)";
             this.btnKeluar.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnKeluar.UseVisualStyleBackColor = true;
+            this.btnKeluar.Click += new System.EventHandler(this.btnKeluar_Click);
             // 
             // btnDataPT
             // 

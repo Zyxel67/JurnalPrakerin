@@ -26,15 +26,17 @@
             this.txtDeskripsi = new System.Windows.Forms.TextBox();
             this.btnSimpanJurnal = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.picFoto = new System.Windows.Forms.PictureBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.btnPilihFoto = new System.Windows.Forms.Button();
             this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Tanggal = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Judul_Kegiatan = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Deskripsi = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column3 = new System.Windows.Forms.DataGridViewImageColumn();
+            this.Column4 = new System.Windows.Forms.DataGridViewImageColumn();
+            this.picFoto = new System.Windows.Forms.PictureBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.btnPilihFoto = new System.Windows.Forms.Button();
             this.btnUpdate = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picFoto)).BeginInit();
@@ -128,12 +130,55 @@
             this.Judul_Kegiatan,
             this.Deskripsi,
             this.Status,
-            this.Column2});
+            this.Column2,
+            this.Column3,
+            this.Column4});
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.dataGridView1.Location = new System.Drawing.Point(0, 481);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.Size = new System.Drawing.Size(740, 150);
             this.dataGridView1.TabIndex = 9;
+            // 
+            // Column1
+            // 
+            this.Column1.HeaderText = "id_laporan";
+            this.Column1.Name = "Column1";
+            this.Column1.Visible = false;
+            // 
+            // Tanggal
+            // 
+            this.Tanggal.HeaderText = "Tanggal";
+            this.Tanggal.Name = "Tanggal";
+            // 
+            // Judul_Kegiatan
+            // 
+            this.Judul_Kegiatan.HeaderText = "Judul Kegiatan";
+            this.Judul_Kegiatan.Name = "Judul_Kegiatan";
+            // 
+            // Deskripsi
+            // 
+            this.Deskripsi.HeaderText = "Deskripsi";
+            this.Deskripsi.Name = "Deskripsi";
+            // 
+            // Status
+            // 
+            this.Status.HeaderText = "Status";
+            this.Status.Name = "Status";
+            // 
+            // Column2
+            // 
+            this.Column2.HeaderText = "Catatan";
+            this.Column2.Name = "Column2";
+            // 
+            // Column3
+            // 
+            this.Column3.HeaderText = "Edit";
+            this.Column3.Name = "Column3";
+            // 
+            // Column4
+            // 
+            this.Column4.HeaderText = "Delete";
+            this.Column4.Name = "Column4";
             // 
             // picFoto
             // 
@@ -169,36 +214,7 @@
             this.btnPilihFoto.TabIndex = 12;
             this.btnPilihFoto.Text = "Pilih Foto";
             this.btnPilihFoto.UseVisualStyleBackColor = false;
-            // 
-            // Column1
-            // 
-            this.Column1.HeaderText = "id_laporan";
-            this.Column1.Name = "Column1";
-            // 
-            // Tanggal
-            // 
-            this.Tanggal.HeaderText = "Tanggal";
-            this.Tanggal.Name = "Tanggal";
-            // 
-            // Judul_Kegiatan
-            // 
-            this.Judul_Kegiatan.HeaderText = "Judul Kegiatan";
-            this.Judul_Kegiatan.Name = "Judul_Kegiatan";
-            // 
-            // Deskripsi
-            // 
-            this.Deskripsi.HeaderText = "Deskripsi";
-            this.Deskripsi.Name = "Deskripsi";
-            // 
-            // Status
-            // 
-            this.Status.HeaderText = "Status";
-            this.Status.Name = "Status";
-            // 
-            // Column2
-            // 
-            this.Column2.HeaderText = "Catatan";
-            this.Column2.Name = "Column2";
+            this.btnPilihFoto.Click += new System.EventHandler(this.btnPilihFoto_Click);
             // 
             // btnUpdate
             // 
@@ -213,7 +229,7 @@
             this.btnUpdate.TabIndex = 13;
             this.btnUpdate.Text = "Update Jurnal";
             this.btnUpdate.UseVisualStyleBackColor = false;
-            this.btnUpdate.Click += new System.EventHandler(this.btnUpdate_Click);
+            this.btnUpdate.Click += new System.EventHandler(this.btnUpdate_Click_1);
             // 
             // Form6
             // 
@@ -237,6 +253,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Form6";
             this.Text = "Form Input Jurnal";
+            this.Load += new System.EventHandler(this.Form6_Load_1);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picFoto)).EndInit();
             this.ResumeLayout(false);
@@ -258,12 +275,14 @@
         private System.Windows.Forms.PictureBox picFoto;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnPilihFoto;
+        private System.Windows.Forms.Button btnUpdate;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Tanggal;
         private System.Windows.Forms.DataGridViewTextBoxColumn Judul_Kegiatan;
         private System.Windows.Forms.DataGridViewTextBoxColumn Deskripsi;
         private System.Windows.Forms.DataGridViewTextBoxColumn Status;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
-        private System.Windows.Forms.Button btnUpdate;
+        private System.Windows.Forms.DataGridViewImageColumn Column3;
+        private System.Windows.Forms.DataGridViewImageColumn Column4;
     }
 }

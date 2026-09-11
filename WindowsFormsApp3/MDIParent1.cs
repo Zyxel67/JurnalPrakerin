@@ -12,40 +12,73 @@ namespace WindowsFormsApp3
 {
     public partial class MDIParent1 : Form
     {
-        private int childFormNumber = 0;
+        // Variabel penampung yang dipanggil di Form1.cs
+        public string sus;
 
         public MDIParent1()
         {
             InitializeComponent();
         }
 
-        private void ShowNewForm(object sender, EventArgs e)
+        // --- FUNGSI MEMASUKKAN FORM KE DALAM pnlKonten ---
+        private void TampilkanFormChild(Form Child)
         {
-            Form childForm = new Form();
-            childForm.MdiParent = this;
-            childForm.Text = "Window " + childFormNumber++;
-            childForm.Show();
+            // 1. Bersihkan form lama di dalam pnlKonten jika ada
+            pnlKonten.Controls.Clear();
+
+            // 2. Ubah sifat Form menjadi kontrol panel biasa
+            Child.TopLevel = false;
+            Child.FormBorderStyle = FormBorderStyle.None;
+            Child.Dock = DockStyle.Fill; // Agar form memenuhi seluruh pnlKonten
+
+            // 3. Masukkan ke panel & tampilkan
+            pnlKonten.Controls.Add(Child);
+            pnlKonten.Tag = Child;
+            Child.Show();
         }
 
-        private void OpenFile(object sender, EventArgs e)
+        // --- EVENT KLIK SIDEBAR TOMBOL ---
+        private void btnDataSiswa_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            openFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
-            if (openFileDialog.ShowDialog(this) == DialogResult.OK)
-            {
-                string FileName = openFileDialog.FileName;
-            }
+            TampilkanFormChild(new FormSiswa());
         }
 
-        private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void btnDataGuru_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            saveFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
-            if (saveFileDialog.ShowDialog(this) == DialogResult.OK)
+            TampilkanFormChild(new FormGuru());
+        }
+
+        private void btnDataPT_Click(object sender, EventArgs e)
+        {
+            TampilkanFormChild(new FormPT());
+        }
+
+        // --- EVENT KLIK STRIP MENU ATAS ---
+        private void siswaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TampilkanFormChild(new FormSiswa());
+        }
+
+        private void guruToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TampilkanFormChild(new FormGuru());
+        }
+
+        private void ptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TampilkanFormChild(new FormPT());
+        }
+
+        // --- LOGOUT / UTILITY ---
+        private void toolStripLabel1_Click(object sender, EventArgs e)
+        {
+            DialogResult setuju = MessageBox.Show("Apakah yakin ingin keluar?", "Pemberitahuan", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (setuju == DialogResult.Yes)
             {
-                string FileName = saveFileDialog.FileName;
+                Form1 Gibran = new Form1();
+                Gibran.Show();
+                this.Hide();
             }
         }
 
@@ -54,137 +87,16 @@ namespace WindowsFormsApp3
             this.Close();
         }
 
-        private void CutToolStripMenuItem_Click(object sender, EventArgs e)
+        private void btnKeluar_Click(object sender, EventArgs e)
         {
-        }
-
-        private void CopyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void PasteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void ToolBarToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void StatusBarToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void CascadeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            LayoutMdi(MdiLayout.Cascade);
-        }
-
-        private void TileVerticalToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            LayoutMdi(MdiLayout.TileVertical);
-        }
-
-        private void TileHorizontalToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            LayoutMdi(MdiLayout.TileHorizontal);
-        }
-
-        private void ArrangeIconsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            LayoutMdi(MdiLayout.ArrangeIcons);
-        }
-
-        private void CloseAllToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            foreach (Form childForm in MdiChildren)
-            {
-                childForm.Close();
-            }
-        }
-
-        private void fileMenu_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void dataToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-
-        private void TampilkanFormChild(Form Child)
-        {
-            Child.MdiParent = this;
-            Child.StartPosition = FormStartPosition.Manual;
-            Child.Show();
-
-            int x = (this.ClientSize.Width - Child.Width) / 2;
-            int y = (this.ClientSize.Width - Child.Width) / 2;
-
-            Child.Location = new Point(Math.Max(0, x), Math.Max(0, y));
-        }
-
-        public string sus;
-        private void siswaToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FormSiswa frmchild = new FormSiswa();
-            frmchild.MdiParent = this;
-            TampilkanFormChild(frmchild);
-        }
-
-        private void guruToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FormGuru frmchild = new FormGuru();
-                frmchild.MdiParent = this;
-            TampilkanFormChild(frmchild);
-        }
-
-        private void ptToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FormPT frmchild = new FormPT();
-            frmchild.MdiParent = this;
-            TampilkanFormChild(frmchild);
-        }
-
-        private void toolStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-
-        }
-
-        private void toolStripLabel1_Click(object sender, EventArgs e)
-        {
-            DialogResult setuju = MessageBox.Show("Apakah yakin?", "Pemeberithauan", MessageBoxButtons.YesNo);
-
+            DialogResult setuju = MessageBox.Show("Yakin mau logout?", "Peringatan", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (setuju == DialogResult.Yes)
             {
-                Form1 Gibran = new Form1();
-                Gibran.Visible = true;
-                this.Hide();
+                Classdb.idUserLogin = ""; // Hapus sesi
+                Form1 login = new Form1(); // Ganti Form1 ke nama form login aslimu
+                login.Show();
+                this.Close();
             }
-        }
-
-        private void btnDataSiswa_Click(object sender, EventArgs e)
-        {
-            FormSiswa frmchild = new FormSiswa();
-            frmchild.MdiParent = this;
-            TampilkanFormChild(frmchild);
-        }
-
-        private void btnDataGuru_Click(object sender, EventArgs e)
-        {
-            FormGuru frmchild = new FormGuru();
-            frmchild.MdiParent = this;
-            TampilkanFormChild(frmchild);
-        }
-
-        private void btnDataPT_Click(object sender, EventArgs e)
-        {
-            FormPT frmchild = new FormPT();
-            frmchild.MdiParent = this;
-            TampilkanFormChild(frmchild);
         }
     }
 }
