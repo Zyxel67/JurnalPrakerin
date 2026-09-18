@@ -1,4 +1,4 @@
-﻿namespace WindowsFormsApp3
+namespace WindowsFormsApp3
 {
     partial class Form5
     {
@@ -22,11 +22,13 @@
             this.lblJudulTop = new System.Windows.Forms.Label();
             this.pnlSidebar = new System.Windows.Forms.Panel();
             this.btnKeluar = new System.Windows.Forms.Button();
+            this.btnProfil = new System.Windows.Forms.Button();
+            this.btnNilai = new System.Windows.Forms.Button();
+            this.btnPresensi = new System.Windows.Forms.Button();
             this.btnJurnal = new System.Windows.Forms.Button();
             this.btnDashboard = new System.Windows.Forms.Button();
             this.lblLogo = new System.Windows.Forms.Label();
             this.pnlKonten = new System.Windows.Forms.Panel();
-            this.btnProfil = new System.Windows.Forms.Button();
             this.pnltop.SuspendLayout();
             this.pnlSidebar.SuspendLayout();
             this.SuspendLayout();
@@ -69,10 +71,12 @@
             // 
             this.pnlSidebar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.pnlSidebar.Controls.Add(this.btnProfil);
-            this.pnlSidebar.Controls.Add(this.btnKeluar);
+            this.pnlSidebar.Controls.Add(this.btnNilai);
+            this.pnlSidebar.Controls.Add(this.btnPresensi);
             this.pnlSidebar.Controls.Add(this.btnJurnal);
             this.pnlSidebar.Controls.Add(this.btnDashboard);
             this.pnlSidebar.Controls.Add(this.lblLogo);
+            this.pnlSidebar.Controls.Add(this.btnKeluar);
             this.pnlSidebar.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnlSidebar.Location = new System.Drawing.Point(0, 0);
             this.pnlSidebar.Name = "pnlSidebar";
@@ -152,6 +156,41 @@
             this.pnlKonten.Size = new System.Drawing.Size(784, 501);
             this.pnlKonten.TabIndex = 2;
             // 
+            // 
+            // btnPresensi
+            // 
+            this.btnPresensi.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnPresensi.FlatAppearance.BorderSize = 0;
+            this.btnPresensi.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPresensi.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnPresensi.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.btnPresensi.Location = new System.Drawing.Point(0, 180);
+            this.btnPresensi.Name = "btnPresensi";
+            this.btnPresensi.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.btnPresensi.Size = new System.Drawing.Size(200, 50);
+            this.btnPresensi.TabIndex = 5;
+            this.btnPresensi.Text = "Presensi";
+            this.btnPresensi.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnPresensi.UseVisualStyleBackColor = true;
+            this.btnPresensi.Click += new System.EventHandler(this.btnPresensi_Click);
+            // 
+            // btnNilai
+            // 
+            this.btnNilai.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnNilai.FlatAppearance.BorderSize = 0;
+            this.btnNilai.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnNilai.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnNilai.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.btnNilai.Location = new System.Drawing.Point(0, 230);
+            this.btnNilai.Name = "btnNilai";
+            this.btnNilai.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.btnNilai.Size = new System.Drawing.Size(200, 50);
+            this.btnNilai.TabIndex = 6;
+            this.btnNilai.Text = "Nilai PKL";
+            this.btnNilai.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnNilai.UseVisualStyleBackColor = true;
+            this.btnNilai.Click += new System.EventHandler(this.btnNilai_Click);
+            // 
             // btnProfil
             // 
             this.btnProfil.Dock = System.Windows.Forms.DockStyle.Top;
@@ -159,7 +198,7 @@
             this.btnProfil.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnProfil.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnProfil.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.btnProfil.Location = new System.Drawing.Point(0, 180);
+            this.btnProfil.Location = new System.Drawing.Point(0, 280);
             this.btnProfil.Name = "btnProfil";
             this.btnProfil.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
             this.btnProfil.Size = new System.Drawing.Size(200, 50);
@@ -197,6 +236,8 @@
         private System.Windows.Forms.Button btnDashboard;
         private System.Windows.Forms.Button btnKeluar;
         private System.Windows.Forms.Button btnJurnal;
+        private System.Windows.Forms.Button btnPresensi;
+        private System.Windows.Forms.Button btnNilai;
         private System.Windows.Forms.Label lblJudulTop;
         private System.Windows.Forms.Label lblUserInfo;
         private System.Windows.Forms.Button btnProfil;

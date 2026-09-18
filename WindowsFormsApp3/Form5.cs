@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -44,13 +44,23 @@ namespace WindowsFormsApp3
         private void btnDashboard_Click(object sender, EventArgs e)
         {
             // Buka kembali Form6/Jurnal saat tombol dashboard diklik
-            BukaFormDiPanel(new Form6());
+            BukaFormDiPanel(new FormDashboard());
         }
 
         private void btnJurnal_Click(object sender, EventArgs e)
         {
             // Memanggil Form6 masuk ke tengah layar (pnlKonten)!
             BukaFormDiPanel(new Form6());
+        }
+
+        private void btnPresensi_Click(object sender, EventArgs e)
+        {
+            BukaFormDiPanel(new FormPresensiSiswa());
+        }
+
+        private void btnNilai_Click(object sender, EventArgs e)
+        {
+            BukaFormDiPanel(new FormNilaiSiswa());
         }
 
         private void btnProfil_Click(object sender, EventArgs e)

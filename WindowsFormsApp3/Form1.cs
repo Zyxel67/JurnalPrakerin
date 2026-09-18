@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -86,7 +86,7 @@ namespace WindowsFormsApp3
                 }
 
                 // UPDATE PENTING: Tambahkan Ids, Id_Gr, dan Id_Pt ke dalam query
-                string queryLogin = "SELECT UID, hak, Ids, Id_Gr, Id_Pt FROM user WHERE Nama = @Nama AND Password = SHA1(@Password)";
+                string queryLogin = "SELECT UID, hak, Nama, Ids, Id_Gr, Id_Pt FROM user WHERE Nama = @Nama AND Password = SHA1(@Password)";
 
                 using (MySqlCommand cmd = new MySqlCommand(queryLogin, Classdb.koneksi))
                 {
@@ -123,24 +123,24 @@ namespace WindowsFormsApp3
                             {
                                 // Guru pakai 'Id_Gr', bukan 'Ids'
                                 Classdb.idUserLogin = reader["Id_Gr"].ToString();
+                                string namaGuru = reader["Nama"].ToString();
 
                                 MessageBox.Show("Login Guru Berhasil!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                                Form2 menuUser = new Form2();
-                                menuUser.sas = idgibran;
-                                menuUser.Show();
+                                FormDashboardGuru dashboardGuru = new FormDashboardGuru(namaGuru);
+                                dashboardGuru.Show();
                                 this.Hide();
                             }
                             else if (cekhak == "PT" || cekhak == "Pt")
                             {
                                 // PT pakai 'Id_Pt'
                                 Classdb.idUserLogin = reader["Id_Pt"].ToString();
+                                string namaPT = reader["Nama"].ToString();
 
                                 MessageBox.Show("Login Perusahaan Berhasil!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                                Form2 menuUser = new Form2();
-                                menuUser.sas = idgibran;
-                                menuUser.Show();
+                                FormDashboardPT dashboardPT = new FormDashboardPT(namaPT);
+                                dashboardPT.Show();
                                 this.Hide();
                             }
                             else

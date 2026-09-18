@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -78,6 +78,24 @@
     <Compile Include="Form7.Designer.cs">
       <DependentUpon>Form7.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormDashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormDashboard.Designer.cs">
+      <DependentUpon>FormDashboard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormDashboardGuru.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormDashboardGuru.Designer.cs">
+      <DependentUpon>FormDashboardGuru.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormDashboardPT.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormDashboardPT.Designer.cs">
+      <DependentUpon>FormDashboardPT.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormDetailJurnal.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,11 +108,23 @@
     <Compile Include="FormNilaiSiswa.Designer.cs">
       <DependentUpon>FormNilaiSiswa.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormNoteDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormNoteDialog.Designer.cs">
+      <DependentUpon>FormNoteDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormProfilSiswa.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormProfilSiswa.Designer.cs">
       <DependentUpon>FormProfilSiswa.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormPresensiSiswa.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormPresensiSiswa.Designer.cs">
+      <DependentUpon>FormPresensiSiswa.cs</DependentUpon>
     </Compile>
     <Compile Include="FormSiswa.cs">
       <SubType>Form</SubType>

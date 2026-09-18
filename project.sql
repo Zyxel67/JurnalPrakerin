@@ -220,6 +220,27 @@ ALTER TABLE `perusahaan`
 --
 ALTER TABLE `user`
   MODIFY `UID` int(24) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `presensi`
+--
+
+CREATE TABLE IF NOT EXISTS `presensi` (
+  `id_presensi` int(11) NOT NULL AUTO_INCREMENT,
+  `Ids` varchar(50) NOT NULL,
+  `tanggal` date NOT NULL,
+  `jam_masuk` time DEFAULT NULL,
+  `jam_pulang` time DEFAULT NULL,
+  `status_kehadiran` enum('Hadir','Izin','Sakit','Alpa') NOT NULL DEFAULT 'Hadir',
+  `keterangan` text DEFAULT NULL,
+  `status_verifikasi` enum('Menunggu','Diverifikasi','Ditolak') NOT NULL DEFAULT 'Menunggu',
+  `catatan_pt` text DEFAULT NULL,
+  PRIMARY KEY (`id_presensi`),
+  UNIQUE KEY `unique_siswa_tanggal` (`Ids`, `tanggal`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
