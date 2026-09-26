@@ -1,4 +1,4 @@
-﻿
+
 namespace WindowsFormsApp3
 {
     partial class FormPT
@@ -247,7 +247,7 @@ namespace WindowsFormsApp3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(969, 450);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.TXTpembimbing);
@@ -265,6 +265,7 @@ namespace WindowsFormsApp3
             this.Controls.Add(this.button1);
             this.Name = "FormPT";
             this.Text = "FormPT";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.Form2_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);

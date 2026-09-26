@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 using System.Data;
 using MySql.Data.MySqlClient;
@@ -18,6 +19,96 @@ namespace WindowsFormsApp3
             dtpTanggalPresensi.Value = DateTime.Today;
 
             LoadAllData();
+            BuildSidebar();
+        }
+
+        private Button btnNavPresensi;
+        private Button btnNavJurnal;
+        private Button btnNavPenilaian;
+
+        private void BuildSidebar()
+        {
+            // Hide TabControl Headers
+            tabControlPT.Appearance = TabAppearance.FlatButtons;
+            tabControlPT.ItemSize = new Size(0, 1);
+            tabControlPT.SizeMode = TabSizeMode.Fixed;
+
+            Panel pnlSidebar = new Panel();
+            pnlSidebar.BackColor = System.Drawing.Color.FromArgb(15, 23, 42); // Match Form5
+            pnlSidebar.Dock = DockStyle.Left;
+            pnlSidebar.Width = 200;
+
+            Label lblLogo = new Label();
+            lblLogo.Text = "PERUSAHAAN";
+            lblLogo.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            lblLogo.ForeColor = System.Drawing.Color.DodgerBlue;
+            lblLogo.Dock = DockStyle.Top;
+            lblLogo.Height = 80;
+            lblLogo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            pnlSidebar.Controls.Add(lblLogo);
+            lblLogo.SendToBack();
+
+            btnNavPresensi = CreateSidebarButton("Presensi Siswa");
+            btnNavPresensi.Click += (s, e) => {
+                tabControlPT.SelectedIndex = 0;
+                SetActiveNavButton(btnNavPresensi);
+            };
+            pnlSidebar.Controls.Add(btnNavPresensi);
+            btnNavPresensi.SendToBack();
+
+            btnNavJurnal = CreateSidebarButton("Jurnal Siswa");
+            btnNavJurnal.Click += (s, e) => {
+                tabControlPT.SelectedIndex = 1;
+                SetActiveNavButton(btnNavJurnal);
+            };
+            pnlSidebar.Controls.Add(btnNavJurnal);
+            btnNavJurnal.SendToBack();
+
+            btnNavPenilaian = CreateSidebarButton("Penilaian");
+            btnNavPenilaian.Click += (s, e) => {
+                tabControlPT.SelectedIndex = 2;
+                SetActiveNavButton(btnNavPenilaian);
+            };
+            pnlSidebar.Controls.Add(btnNavPenilaian);
+            btnNavPenilaian.SendToBack();
+
+            Button btnLogout = CreateSidebarButton("Keluar (Logout)");
+            btnLogout.Dock = DockStyle.Bottom;
+            btnLogout.ForeColor = System.Drawing.Color.IndianRed;
+            btnLogout.Click += btnLogout_Click;
+            pnlSidebar.Controls.Add(btnLogout);
+
+            this.Controls.Add(pnlSidebar);
+            pnlSidebar.SendToBack();
+
+            SetActiveNavButton(btnNavPresensi);
+        }
+
+        private void SetActiveNavButton(Button activeBtn)
+        {
+            if (btnNavPresensi != null) btnNavPresensi.BackColor = Color.Transparent;
+            if (btnNavJurnal != null) btnNavJurnal.BackColor = Color.Transparent;
+            if (btnNavPenilaian != null) btnNavPenilaian.BackColor = Color.Transparent;
+
+            if (activeBtn != null)
+            {
+                activeBtn.BackColor = Color.FromArgb(30, 41, 59);
+            }
+        }
+
+        private Button CreateSidebarButton(string text)
+        {
+            Button btn = new Button();
+            btn.Text = text;
+            btn.Dock = DockStyle.Top;
+            btn.Height = 50;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.ForeColor = System.Drawing.Color.WhiteSmoke;
+            btn.Font = new System.Drawing.Font("Segoe UI", 11F);
+            btn.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            btn.Padding = new Padding(20, 0, 0, 0);
+            return btn;
         }
 
         private string GetPtId()

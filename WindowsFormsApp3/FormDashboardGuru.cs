@@ -17,6 +17,86 @@ namespace WindowsFormsApp3
             lblNamaPengguna.Text = $"Halo, {nama}";
             LoadData();
             LoadDataNilai();
+            BuildSidebar();
+        }
+
+        private Button btnNavJurnal;
+        private Button btnNavPenilaian;
+
+        private void BuildSidebar()
+        {
+            // Hide TabControl Headers
+            tabControlGuru.Appearance = TabAppearance.FlatButtons;
+            tabControlGuru.ItemSize = new Size(0, 1);
+            tabControlGuru.SizeMode = TabSizeMode.Fixed;
+
+            Panel pnlSidebar = new Panel();
+            pnlSidebar.BackColor = Color.FromArgb(15, 23, 42); // Match Form5
+            pnlSidebar.Dock = DockStyle.Left;
+            pnlSidebar.Width = 200;
+
+            Label lblLogo = new Label();
+            lblLogo.Text = "GURU PKL";
+            lblLogo.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            lblLogo.ForeColor = Color.DodgerBlue;
+            lblLogo.Dock = DockStyle.Top;
+            lblLogo.Height = 80;
+            lblLogo.TextAlign = ContentAlignment.MiddleCenter;
+            pnlSidebar.Controls.Add(lblLogo);
+            lblLogo.SendToBack();
+
+            btnNavJurnal = CreateSidebarButton("Jurnal Siswa");
+            btnNavJurnal.Click += (s, e) => {
+                tabControlGuru.SelectedIndex = 0;
+                SetActiveNavButton(btnNavJurnal);
+            };
+            pnlSidebar.Controls.Add(btnNavJurnal);
+            btnNavJurnal.SendToBack();
+
+            btnNavPenilaian = CreateSidebarButton("Penilaian");
+            btnNavPenilaian.Click += (s, e) => {
+                tabControlGuru.SelectedIndex = 1;
+                SetActiveNavButton(btnNavPenilaian);
+            };
+            pnlSidebar.Controls.Add(btnNavPenilaian);
+            btnNavPenilaian.SendToBack();
+
+            Button btnLogout = CreateSidebarButton("Keluar (Logout)");
+            btnLogout.Dock = DockStyle.Bottom;
+            btnLogout.ForeColor = Color.IndianRed;
+            btnLogout.Click += btnLogout_Click;
+            pnlSidebar.Controls.Add(btnLogout);
+
+            this.Controls.Add(pnlSidebar);
+            pnlSidebar.SendToBack();
+
+            SetActiveNavButton(btnNavJurnal);
+        }
+
+        private void SetActiveNavButton(Button activeBtn)
+        {
+            if (btnNavJurnal != null) btnNavJurnal.BackColor = Color.Transparent;
+            if (btnNavPenilaian != null) btnNavPenilaian.BackColor = Color.Transparent;
+
+            if (activeBtn != null)
+            {
+                activeBtn.BackColor = Color.FromArgb(30, 41, 59);
+            }
+        }
+
+        private Button CreateSidebarButton(string text)
+        {
+            Button btn = new Button();
+            btn.Text = text;
+            btn.Dock = DockStyle.Top;
+            btn.Height = 50;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.ForeColor = Color.WhiteSmoke;
+            btn.Font = new Font("Segoe UI", 11F);
+            btn.TextAlign = ContentAlignment.MiddleLeft;
+            btn.Padding = new Padding(20, 0, 0, 0);
+            return btn;
         }
 
         private string GetGuruFilter()

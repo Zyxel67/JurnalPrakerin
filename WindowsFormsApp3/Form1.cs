@@ -93,65 +93,75 @@ namespace WindowsFormsApp3
                     cmd.Parameters.AddWithValue("@Nama", txtuser.Text);
                     cmd.Parameters.AddWithValue("@Password", txtpass.Text);
 
+                    string idgibran = "";
+                    string cekhak = "";
+                    string ids = "";
+                    string idGr = "";
+                    string idPt = "";
+                    string namaUser = "";
+                    bool loginSuccess = false;
+
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.HasRows)
                         {
                             reader.Read();
+                            idgibran = reader["UID"].ToString();
+                            cekhak = reader["hak"].ToString();
+                            ids = reader["Ids"].ToString();
+                            idGr = reader["Id_Gr"].ToString();
+                            idPt = reader["Id_Pt"].ToString();
+                            namaUser = reader["Nama"].ToString();
+                            loginSuccess = true;
+                        }
+                    }
 
-                            string idgibran = reader["UID"].ToString();
-                            string cekhak = reader["hak"].ToString();
+                    if (Classdb.koneksi.State == ConnectionState.Open)
+                    {
+                        Classdb.koneksi.Close();
+                    }
 
-                            if (cekhak == "Admin")
-                            {
-                                MDIParent1 menuAdmin = new MDIParent1();
-                                menuAdmin.sus = idgibran;
-                                menuAdmin.Show();
-                                this.Hide();
-                            }
-                            else if (cekhak == "Siswa")
-                            {
-                                Classdb.idUserLogin = reader["Ids"].ToString();
-
-                                MessageBox.Show("Login Siswa Berhasil!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                                Form5 dashboard = new Form5();
-                                dashboard.Show();
-                                this.Hide();
-                            }
-                            else if (cekhak == "Guru")
-                            {
-                                // Guru pakai 'Id_Gr', bukan 'Ids'
-                                Classdb.idUserLogin = reader["Id_Gr"].ToString();
-                                string namaGuru = reader["Nama"].ToString();
-
-                                MessageBox.Show("Login Guru Berhasil!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                                FormDashboardGuru dashboardGuru = new FormDashboardGuru(namaGuru);
-                                dashboardGuru.Show();
-                                this.Hide();
-                            }
-                            else if (cekhak == "PT" || cekhak == "Pt")
-                            {
-                                // PT pakai 'Id_Pt'
-                                Classdb.idUserLogin = reader["Id_Pt"].ToString();
-                                string namaPT = reader["Nama"].ToString();
-
-                                MessageBox.Show("Login Perusahaan Berhasil!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                                FormDashboardPT dashboardPT = new FormDashboardPT(namaPT);
-                                dashboardPT.Show();
-                                this.Hide();
-                            }
-                            else
-                            {
-                                MessageBox.Show("Hak akses tidak valid atau tidak dikenali!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
+                    if (loginSuccess)
+                    {
+                        if (cekhak == "Admin")
+                        {
+                            MDIParent1 menuAdmin = new MDIParent1();
+                            menuAdmin.sus = idgibran;
+                            menuAdmin.Show();
+                            this.Hide();
+                        }
+                        else if (cekhak == "Siswa")
+                        {
+                            Classdb.idUserLogin = ids;
+                            MessageBox.Show("Login Siswa Berhasil!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            Form5 dashboard = new Form5();
+                            dashboard.Show();
+                            this.Hide();
+                        }
+                        else if (cekhak == "Guru")
+                        {
+                            Classdb.idUserLogin = idGr;
+                            MessageBox.Show("Login Guru Berhasil!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            FormDashboardGuru dashboardGuru = new FormDashboardGuru(namaUser);
+                            dashboardGuru.Show();
+                            this.Hide();
+                        }
+                        else if (cekhak == "PT" || cekhak == "Pt")
+                        {
+                            Classdb.idUserLogin = idPt;
+                            MessageBox.Show("Login Perusahaan Berhasil!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            FormDashboardPT dashboardPT = new FormDashboardPT(namaUser);
+                            dashboardPT.Show();
+                            this.Hide();
                         }
                         else
                         {
-                            MessageBox.Show("Username atau password salah", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show("Hak akses tidak valid atau tidak dikenali!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Username atau password salah", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }
