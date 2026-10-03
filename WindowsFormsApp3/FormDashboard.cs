@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
@@ -28,9 +28,7 @@ namespace WindowsFormsApp3
             {
                 if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
 
-                // Asumsi nama tabel user/siswa adalah 'tb_siswa' dan kolomnya 'nama_siswa'
-                // Sesuaikan dengan nama tabel di database lu ya bro!
-                string query = "SELECT nama FROM tb_siswa WHERE Ids = @Ids";
+                string query = "SELECT Nama FROM siswa WHERE Ids = @Ids";
                 using (MySqlCommand cmd = new MySqlCommand(query, Classdb.koneksi))
                 {
                     cmd.Parameters.AddWithValue("@Ids", Classdb.idUserLogin);

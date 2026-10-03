@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MySql.Data.MySqlClient;
 
 namespace WindowsFormsApp3
 {
@@ -21,20 +22,47 @@ namespace WindowsFormsApp3
         {
             bersih();     // Ini otomatis menyembunyikan button4 dan memunculkan button1
             tampildata(); // Sekalian memuat isi DataGridView saat aplikasi pertama dibuka
-        }
 
-       
+            Button btnCetak = new Button();
+            btnCetak.Text = "🖨️ Cetak Data";
+            btnCetak.Size = new Size(114, 31);
+            btnCetak.Location = new Point(button2.Right + 10, button2.Top);
+            btnCetak.Click += (s, ev) => LaporanHelper.CetakKeBrowser(dataGridView1, "DATA PERUSAHAAN (PT) TEMPAT PKL");
+            this.Controls.Add(btnCetak);
+            btnCetak.BringToFront();
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            String nip = TXTalamat.Text;
-            String nm = TXTnm.Text;
-            String tlp = TXTtlp.Text;
-            String pmb = TXTpembimbing.Text;
-            Classdb.crud($"INSERT INTO perusahaan VALUES(null, '{nm}','{nip}', '{tlp}', '{pmb}')");
-            bersih();
-            bersih();
-            tampildata();
+            if (string.IsNullOrWhiteSpace(TXTnm.Text))
+            {
+                MessageBox.Show("Nama perusahaan tidak boleh kosong!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+                using (MySqlCommand cmd = new MySqlCommand("INSERT INTO perusahaan (Nama, Alamat, Telepon, Nama_Pembimbing) VALUES (@Nama, @Alamat, @Telepon, @Pembimbing)", Classdb.koneksi))
+                {
+                    cmd.Parameters.AddWithValue("@Nama", TXTnm.Text.Trim());
+                    cmd.Parameters.AddWithValue("@Alamat", TXTalamat.Text.Trim());
+                    cmd.Parameters.AddWithValue("@Telepon", TXTtlp.Text.Trim());
+                    cmd.Parameters.AddWithValue("@Pembimbing", TXTpembimbing.Text.Trim());
+                    cmd.ExecuteNonQuery();
+                }
+                MessageBox.Show("Data perusahaan berhasil disimpan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                bersih();
+                tampildata();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal menyimpan data perusahaan: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
+            }
         }
 
         private void bersih()
@@ -42,6 +70,7 @@ namespace WindowsFormsApp3
             TXTtlp.Text = "";
             TXTnm.Text = "";
             TXTalamat.Text = "";
+            TXTpembimbing.Text = "";
             label7.Text = ""; // Jangan lupa bersihkan juga label ID-nya
 
             // Mengatur tombol
@@ -52,15 +81,30 @@ namespace WindowsFormsApp3
         public void tampildata()
         {
             dataGridView1.Rows.Clear();
-            Classdb.crud("SELECT * FROM perusahaan");
-            foreach (DataRow baris in Classdb.ds.Tables[0].Rows)
+            try
             {
-                string id = "" + baris["Id_Pt"];
-                string nama = "" + baris["Nama"];
-                string alamat = "" + baris["Alamat"];
-                string hak = "" + baris["Telepon"];
-                string pmb = "" + baris["Nama_Pembimbing"];
-                dataGridView1.Rows.Add(id, nama, alamat, hak, pmb);
+                if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+                using (MySqlCommand cmd = new MySqlCommand("SELECT Id_Pt, Nama, Alamat, Telepon, Nama_Pembimbing FROM perusahaan ORDER BY Id_Pt ASC", Classdb.koneksi))
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string id = reader["Id_Pt"].ToString();
+                        string nama = reader["Nama"].ToString();
+                        string alamat = reader["Alamat"].ToString();
+                        string telepon = reader["Telepon"].ToString();
+                        string pmb = reader["Nama_Pembimbing"].ToString();
+                        dataGridView1.Rows.Add(id, nama, alamat, telepon, pmb);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal memuat data perusahaan: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
             }
         }
 
@@ -76,27 +120,68 @@ namespace WindowsFormsApp3
 
         private void button4_Click(object sender, EventArgs e)
         {
-            String al = TXTalamat.Text;
-            String nm = TXTnm.Text;
-            String tlp = TXTtlp.Text;
-            String pmb = TXTpembimbing.Text;
-            Classdb.crud($"UPDATE perusahaan SET Nama = '{nm}', Alamat = '{al}', Telepon = '{tlp}', Nama_Pembimbing = '{pmb}'  where Id_Pt = '{label7.Text}' ");
-            bersih();
-            tampildata();
+            if (string.IsNullOrWhiteSpace(label7.Text))
+            {
+                MessageBox.Show("Pilih data perusahaan yang ingin diubah!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+                using (MySqlCommand cmd = new MySqlCommand("UPDATE perusahaan SET Nama = @Nama, Alamat = @Alamat, Telepon = @Telepon, Nama_Pembimbing = @Pembimbing WHERE Id_Pt = @IdPt", Classdb.koneksi))
+                {
+                    cmd.Parameters.AddWithValue("@Nama", TXTnm.Text.Trim());
+                    cmd.Parameters.AddWithValue("@Alamat", TXTalamat.Text.Trim());
+                    cmd.Parameters.AddWithValue("@Telepon", TXTtlp.Text.Trim());
+                    cmd.Parameters.AddWithValue("@Pembimbing", TXTpembimbing.Text.Trim());
+                    cmd.Parameters.AddWithValue("@IdPt", label7.Text);
+                    cmd.ExecuteNonQuery();
+                }
+                MessageBox.Show("Data perusahaan berhasil diperbarui!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                bersih();
+                tampildata();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal memperbarui data: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
+            }
         }
 
         public void caridata(string lui)
         {
             dataGridView1.Rows.Clear();
-            Classdb.crud($"select * from perusahaan where nama like '%{lui}%'");
-            foreach (DataRow baris in Classdb.ds.Tables[0].Rows)
+            try
             {
-                string id = "" + baris["Id_Pt"];
-                string nip = "" + baris["Nama"];
-                string nama = "" + baris["Alamat"];
-                string alamat = "" + baris["Telepon"];
-                string pmb = "" + baris["Nama_Pembimbing"];
-                dataGridView1.Rows.Add(id, nip, nama, alamat, pmb);
+                if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+                using (MySqlCommand cmd = new MySqlCommand("SELECT Id_Pt, Nama, Alamat, Telepon, Nama_Pembimbing FROM perusahaan WHERE Nama LIKE @Cari ORDER BY Id_Pt ASC", Classdb.koneksi))
+                {
+                    cmd.Parameters.AddWithValue("@Cari", "%" + lui + "%");
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string id = reader["Id_Pt"].ToString();
+                            string nama = reader["Nama"].ToString();
+                            string alamat = reader["Alamat"].ToString();
+                            string telepon = reader["Telepon"].ToString();
+                            string pmb = reader["Nama_Pembimbing"].ToString();
+                            dataGridView1.Rows.Add(id, nama, alamat, telepon, pmb);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal mencari data: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
             }
         }
 
@@ -115,42 +200,67 @@ namespace WindowsFormsApp3
             int indeksbaris = e.RowIndex;
             int indekskolom = e.ColumnIndex;
             if (indeksbaris < 0) return;
-            string idp = dataGridView1.Rows[indeksbaris].Cells[0].Value.ToString();
+            string idp = dataGridView1.Rows[indeksbaris].Cells[0].Value?.ToString();
 
             if (indekskolom == 6)
             {
-                DialogResult setuju1 = MessageBox.Show("Apakah yakin?", "Pemeberithauan", MessageBoxButtons.YesNo);
+                DialogResult setuju1 = MessageBox.Show("Apakah yakin ingin menghapus data perusahaan ini?", "Konfirmasi Hapus", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
                 if (setuju1 == DialogResult.Yes)
                 {
-                    Classdb.crud($"DELETE FROM perusahaan WHERE perusahaan.Id_Pt = '{idp}'");
-                    tampildata();
+                    try
+                    {
+                        if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+                        using (MySqlCommand cmd = new MySqlCommand("DELETE FROM perusahaan WHERE Id_Pt = @IdPt", Classdb.koneksi))
+                        {
+                            cmd.Parameters.AddWithValue("@IdPt", idp);
+                            cmd.ExecuteNonQuery();
+                        }
+                        MessageBox.Show("Data perusahaan berhasil dihapus!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        bersih();
+                        tampildata();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Gagal menghapus data: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
+                    }
                 }
             }
 
-
             if (indekskolom == 5)
             {
-                DialogResult setuju1 = MessageBox.Show("Apakah yakin?", "Pemeberithauan", MessageBoxButtons.YesNo);
-                if (setuju1 == DialogResult.Yes)
+                try
                 {
-                    Classdb.crud($"select * from perusahaan where Id_Pt = '{idp}'");
-                    foreach (DataRow baris in Classdb.ds.Tables[0].Rows)
+                    if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+                    using (MySqlCommand cmd = new MySqlCommand("SELECT Id_Pt, Nama, Alamat, Telepon, Nama_Pembimbing FROM perusahaan WHERE Id_Pt = @IdPt", Classdb.koneksi))
                     {
-                        string id = "" + baris["Id_Pt"];
-                        label7.Text = id;
-                        string nama = "" + baris["Nama"];
-                        TXTnm.Text = nama;
-                        string alamat = "" + baris["Alamat"];
-                        TXTalamat.Text = alamat;
-                        string password = "" + baris["Telepon"];
-                        TXTtlp.Text = password;
-                        string pmb = "" + baris["Nama_Pembimbing"];
-                        TXTpembimbing.Text = pmb;
-
+                        cmd.Parameters.AddWithValue("@IdPt", idp);
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                label7.Text = reader["Id_Pt"].ToString();
+                                TXTnm.Text = reader["Nama"].ToString();
+                                TXTalamat.Text = reader["Alamat"].ToString();
+                                TXTtlp.Text = reader["Telepon"].ToString();
+                                TXTpembimbing.Text = reader["Nama_Pembimbing"].ToString();
+                                button1.Visible = false; // Sembunyikan tombol Simpan
+                                button4.Visible = true;  // Munculkan tombol Update
+                            }
+                        }
                     }
-                    button1.Visible = false; // Sembunyikan tombol Simpan
-                    button4.Visible = true;  // Munculkan tombol Update
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Gagal memuat data perusahaan: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
                 }
             }
         }

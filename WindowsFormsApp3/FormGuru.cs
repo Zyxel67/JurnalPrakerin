@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MySql.Data.MySqlClient;
 
 namespace WindowsFormsApp3
 {
@@ -21,19 +22,45 @@ namespace WindowsFormsApp3
         {
             bersih();     // Ini otomatis menyembunyikan button4 dan memunculkan button1
             tampildata(); // Sekalian memuat isi DataGridView saat aplikasi pertama dibuka
-        }
 
-       
+            Button btnCetak = new Button();
+            btnCetak.Text = "🖨️ Cetak Data";
+            btnCetak.Size = new Size(114, 31);
+            btnCetak.Location = new Point(button2.Right + 10, button2.Top);
+            btnCetak.Click += (s, ev) => LaporanHelper.CetakKeBrowser(dataGridView1, "DATA GURU PEMBIMBING PKL");
+            this.Controls.Add(btnCetak);
+            btnCetak.BringToFront();
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            
-            String nm = TXTnm.Text;
-            String tlp = TXTtlp.Text;
-            Classdb.crud($"INSERT INTO gurupembimbing VALUES(null, '{nm}', '{tlp}')");
-            bersih();
-            bersih();
-            tampildata();
+            if (string.IsNullOrWhiteSpace(TXTnm.Text))
+            {
+                MessageBox.Show("Nama guru tidak boleh kosong!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+                using (MySqlCommand cmd = new MySqlCommand("INSERT INTO gurupembimbing (Nama, Telepon) VALUES (@Nama, @Telepon)", Classdb.koneksi))
+                {
+                    cmd.Parameters.AddWithValue("@Nama", TXTnm.Text.Trim());
+                    cmd.Parameters.AddWithValue("@Telepon", TXTtlp.Text.Trim());
+                    cmd.ExecuteNonQuery();
+                }
+                MessageBox.Show("Data guru berhasil disimpan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                bersih();
+                tampildata();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal menyimpan data guru: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
+            }
         }
 
         private void bersih()
@@ -48,13 +75,28 @@ namespace WindowsFormsApp3
         public void tampildata()
         {
             dataGridView1.Rows.Clear();
-            Classdb.crud("SELECT * FROM gurupembimbing");
-            foreach (DataRow baris in Classdb.ds.Tables[0].Rows)
+            try
             {
-                string id = "" + baris["Id_Gr"];
-                string alamat = "" + baris["Nama"];
-                string hak = "" + baris["Telepon"];
-                dataGridView1.Rows.Add(id, alamat, hak);
+                if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+                using (MySqlCommand cmd = new MySqlCommand("SELECT Id_Gr, Nama, Telepon FROM gurupembimbing ORDER BY Id_Gr ASC", Classdb.koneksi))
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string id = reader["Id_Gr"].ToString();
+                        string nama = reader["Nama"].ToString();
+                        string telepon = reader["Telepon"].ToString();
+                        dataGridView1.Rows.Add(id, nama, telepon);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal memuat data: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
             }
         }
 
@@ -70,23 +112,64 @@ namespace WindowsFormsApp3
 
         private void button4_Click(object sender, EventArgs e)
         {
-            String al = TXTnm.Text;
-            String user = TXTtlp.Text;
-            Classdb.crud($"UPDATE gurupembimbing SET Nama = '{al}', Telepon = '{user}' where Id_Gr = '{label7.Text}' ");
-            bersih();
-            tampildata();
+            if (string.IsNullOrWhiteSpace(label7.Text))
+            {
+                MessageBox.Show("Pilih guru yang ingin diubah terlebih dahulu!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+                using (MySqlCommand cmd = new MySqlCommand("UPDATE gurupembimbing SET Nama = @Nama, Telepon = @Telepon WHERE Id_Gr = @IdGr", Classdb.koneksi))
+                {
+                    cmd.Parameters.AddWithValue("@Nama", TXTnm.Text.Trim());
+                    cmd.Parameters.AddWithValue("@Telepon", TXTtlp.Text.Trim());
+                    cmd.Parameters.AddWithValue("@IdGr", label7.Text);
+                    cmd.ExecuteNonQuery();
+                }
+                MessageBox.Show("Data guru berhasil diperbarui!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                bersih();
+                tampildata();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal memperbarui data: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
+            }
         }
 
         public void caridata(string lui)
         {
             dataGridView1.Rows.Clear();
-            Classdb.crud($"select * from gurupembimbing where nama like '%{lui}%'");
-            foreach (DataRow baris in Classdb.ds.Tables[0].Rows)
+            try
             {
-                string id = "" + baris["Id_Gr"];
-                string nama = "" + baris["nama"];
-                string alamat = "" + baris["Telepon"];
-                dataGridView1.Rows.Add(id, nama, alamat);
+                if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+                using (MySqlCommand cmd = new MySqlCommand("SELECT Id_Gr, Nama, Telepon FROM gurupembimbing WHERE Nama LIKE @Cari ORDER BY Id_Gr ASC", Classdb.koneksi))
+                {
+                    cmd.Parameters.AddWithValue("@Cari", "%" + lui + "%");
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string id = reader["Id_Gr"].ToString();
+                            string nama = reader["Nama"].ToString();
+                            string telepon = reader["Telepon"].ToString();
+                            dataGridView1.Rows.Add(id, nama, telepon);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal mencari data: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
             }
         }
 
@@ -105,37 +188,65 @@ namespace WindowsFormsApp3
             int indeksbaris = e.RowIndex;
             int indekskolom = e.ColumnIndex;
             if (indeksbaris < 0) return;
-            string idp = dataGridView1.Rows[indeksbaris].Cells[0].Value.ToString();
+            string idp = dataGridView1.Rows[indeksbaris].Cells[0].Value?.ToString();
 
             if (indekskolom == 4)
             {
-                DialogResult setuju1 = MessageBox.Show("Apakah yakin?", "Pemeberithauan", MessageBoxButtons.YesNo);
+                DialogResult setuju1 = MessageBox.Show("Apakah yakin ingin menghapus data guru ini?", "Konfirmasi Hapus", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
                 if (setuju1 == DialogResult.Yes)
                 {
-                    Classdb.crud($"DELETE FROM gurupembimbing WHERE gurupembimbing.Id_Gr = '{idp}'");
-                    tampildata();
+                    try
+                    {
+                        if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+                        using (MySqlCommand cmd = new MySqlCommand("DELETE FROM gurupembimbing WHERE Id_Gr = @IdGr", Classdb.koneksi))
+                        {
+                            cmd.Parameters.AddWithValue("@IdGr", idp);
+                            cmd.ExecuteNonQuery();
+                        }
+                        MessageBox.Show("Data guru berhasil dihapus!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        bersih();
+                        tampildata();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Gagal menghapus data guru: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
+                    }
                 }
             }
 
-
             if (indekskolom == 3)
             {
-                DialogResult setuju1 = MessageBox.Show("Apakah yakin?", "Pemeberithauan", MessageBoxButtons.YesNo);
-                if (setuju1 == DialogResult.Yes)
+                try
                 {
-                    Classdb.crud($"select * from gurupembimbing where Id_Gr = '{idp}'");
-                    foreach (DataRow baris in Classdb.ds.Tables[0].Rows)
+                    if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+                    using (MySqlCommand cmd = new MySqlCommand("SELECT Id_Gr, Nama, Telepon FROM gurupembimbing WHERE Id_Gr = @IdGr", Classdb.koneksi))
                     {
-                        string id = "" + baris["Id_Gr"];
-                        label7.Text = id;
-                        string alamat = "" + baris["Nama"];
-                        TXTnm.Text = alamat;
-                        string password = "" + baris["Telepon"];
-                        TXTtlp.Text = password;
+                        cmd.Parameters.AddWithValue("@IdGr", idp);
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                label7.Text = reader["Id_Gr"].ToString();
+                                TXTnm.Text = reader["Nama"].ToString();
+                                TXTtlp.Text = reader["Telepon"].ToString();
+                                button1.Visible = false; // Sembunyikan tombol Simpan
+                                button4.Visible = true;  // Munculkan tombol Update
+                            }
+                        }
                     }
-                    button1.Visible = false; // Sembunyikan tombol Simpan
-                    button4.Visible = true;  // Munculkan tombol Update
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Gagal memuat data guru: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
                 }
             }
         }

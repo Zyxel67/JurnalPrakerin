@@ -21,8 +21,8 @@ namespace WindowsFormsApp3
 
         private void Form5_Load(object sender, EventArgs e)
         {
-            // Otomatis buka Form6 (Jurnal) saat Form5 pertama kali tampil
-            BukaFormDiPanel(new Form6());
+            // Otomatis buka FormDashboard saat Form5 pertama kali tampil
+            BukaFormDiPanel(new FormDashboard());
         }
 
         // Method untuk memanggil form anak ke dalam pnlKonten

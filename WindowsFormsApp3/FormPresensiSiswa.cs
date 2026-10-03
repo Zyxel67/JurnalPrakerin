@@ -8,9 +8,27 @@ namespace WindowsFormsApp3
 {
     public partial class FormPresensiSiswa : Form
     {
+        private Button btnCetakPresensi;
+
         public FormPresensiSiswa()
         {
             InitializeComponent();
+
+            btnCetakPresensi = new Button();
+            btnCetakPresensi.Text = "🖨️ Cetak Rekap Presensi";
+            btnCetakPresensi.Size = new Size(180, 35);
+            btnCetakPresensi.Location = new Point(btnRefresh.Left - 190, btnRefresh.Top);
+            btnCetakPresensi.Anchor = btnRefresh.Anchor;
+            btnCetakPresensi.BackColor = Color.FromArgb(14, 165, 233);
+            btnCetakPresensi.ForeColor = Color.White;
+            btnCetakPresensi.FlatStyle = FlatStyle.Flat;
+            btnCetakPresensi.FlatAppearance.BorderSize = 0;
+            btnCetakPresensi.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnCetakPresensi.Click += (s, e) => {
+                LaporanHelper.CetakKeBrowser(dgvRiwayatPresensi, "REKAPITULASI PRESENSI KEHADIRAN SISWA PKL", "NIS Siswa: " + Classdb.idUserLogin);
+            };
+            this.Controls.Add(btnCetakPresensi);
+            btnCetakPresensi.BringToFront();
         }
 
         private void FormPresensiSiswa_Load(object sender, EventArgs e)
@@ -141,21 +159,32 @@ namespace WindowsFormsApp3
                 string idSiswa = Classdb.idUserLogin;
                 if (string.IsNullOrEmpty(idSiswa)) return;
 
+                if (Classdb.koneksi.State == ConnectionState.Closed) Classdb.koneksi.Open();
+
                 string query = "SELECT tanggal, jam_masuk, status_kehadiran, keterangan, status_verifikasi, catatan_pt " +
                                "FROM presensi " +
-                               "WHERE Ids = '" + idSiswa + "' " +
+                               "WHERE Ids = @Ids " +
                                "ORDER BY tanggal DESC, jam_masuk DESC";
 
-                Classdb.crud(query);
-                if (Classdb.ds.Tables.Count > 0)
+                using (MySqlCommand cmd = new MySqlCommand(query, Classdb.koneksi))
                 {
-                    dgvRiwayatPresensi.DataSource = Classdb.ds.Tables[0];
-                    dgvRiwayatPresensi.AutoResizeColumns();
+                    cmd.Parameters.AddWithValue("@Ids", idSiswa);
+                    using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
+                    {
+                        DataTable dt = new DataTable();
+                        adapter.Fill(dt);
+                        dgvRiwayatPresensi.DataSource = dt;
+                        dgvRiwayatPresensi.AutoResizeColumns();
+                    }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Gagal memuat riwayat presensi: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (Classdb.koneksi.State == ConnectionState.Open) Classdb.koneksi.Close();
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -17,6 +17,8 @@ namespace WindowsFormsApp3
         private byte[] fotoBytes = null;
         private string idLaporanEdit = "";
 
+        private Button btnCetak;
+
         public Form6()
         {
             InitializeComponent();
@@ -27,6 +29,22 @@ namespace WindowsFormsApp3
 
             btnUpdate.Visible = false;
             btnSimpanJurnal.Visible = true;
+
+            // Tambahkan tombol cetak logbook
+            btnCetak = new Button();
+            btnCetak.Text = "🖨️ Cetak Jurnal";
+            btnCetak.Size = new Size(130, 38);
+            btnCetak.Location = new Point(btnSimpanJurnal.Right + 15, btnSimpanJurnal.Top);
+            btnCetak.BackColor = Color.FromArgb(14, 165, 233);
+            btnCetak.ForeColor = Color.White;
+            btnCetak.FlatStyle = FlatStyle.Flat;
+            btnCetak.FlatAppearance.BorderSize = 0;
+            btnCetak.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnCetak.Click += (s, e) => {
+                LaporanHelper.CetakKeBrowser(dataGridView1, "LAPORAN JURNAL HARIAN SISWA", "Nama Siswa: NIS " + Classdb.idUserLogin);
+            };
+            this.Controls.Add(btnCetak);
+            btnCetak.BringToFront();
         }
 
         // --- 1. Fungsi Bersihkan Form ---
@@ -62,6 +80,29 @@ namespace WindowsFormsApp3
             ProsesPilihFoto();
         }
 
+        private byte[] CompressImage(Image image, int maxWidth = 1024, int maxHeight = 1024)
+        {
+            int newWidth = image.Width;
+            int newHeight = image.Height;
+
+            if (newWidth > maxWidth || newHeight > maxHeight)
+            {
+                double ratioX = (double)maxWidth / image.Width;
+                double ratioY = (double)maxHeight / image.Height;
+                double ratio = Math.Min(ratioX, ratioY);
+
+                newWidth = (int)(image.Width * ratio);
+                newHeight = (int)(image.Height * ratio);
+            }
+
+            using (Bitmap resized = new Bitmap(image, new Size(newWidth, newHeight)))
+            using (MemoryStream ms = new MemoryStream())
+            {
+                resized.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                return ms.ToArray();
+            }
+        }
+
         private void ProsesPilihFoto()
         {
             OpenFileDialog open = new OpenFileDialog();
@@ -69,8 +110,11 @@ namespace WindowsFormsApp3
 
             if (open.ShowDialog() == DialogResult.OK)
             {
-                picFoto.Image = Image.FromFile(open.FileName);
-                fotoBytes = File.ReadAllBytes(open.FileName);
+                using (Image tempImg = Image.FromFile(open.FileName))
+                {
+                    picFoto.Image = new Bitmap(tempImg);
+                    fotoBytes = CompressImage(tempImg);
+                }
             }
         }
 
